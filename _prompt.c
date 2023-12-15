@@ -16,33 +16,3 @@ char *cmd_prompt(int *read)
 
 	return (p);
 }
-
-/**
- * main - Entry point
- *
- * Return: 0 (Success)
- */
-
-int main(void)
-{
-	int read;
-	char *input;
-
-	do {
-		printf("oloyeodero$: ");
-		input = cmd_prompt(&read);
-
-		if (read != -1)
-		{
-			printf("You entered: %s", input);
-			free(input);
-		}
-		else
-		{
-			perror("Error reading input");
-		}
-	} 
-	while (read != -1);
-
-	return (0);
-}
