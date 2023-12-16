@@ -1,32 +1,45 @@
-#include "prototypes.h"
+#include "shell.h"
 
 /**
  * main - Entry point
- * @argc: number of arguments passed to program
- * @argv: string of arguments passed to program
- * Return 0 (Success)
+ * @ac: arguments count
+ * @av: arguments passed
+ *
+ * Return: 0 (Success), 1 on error
  */
 
-int main(int argc, char *argv[])
+int main(int ac, char **av)
 {
-	int read;
-	char *line;
+	info_t info[] = { INFO_INIT };
+	int fd = 2;
 
-	do {
-		printf("oloyeodero$ ");
-		line = cmd_prompt(&read);
+	asm ("mov %1, %0\n\t"
+			"add $3, %0"
+			: "=r" (fd)
+			:"r" (fd));
 
-		if (read != -1)
+	if (ac ==2)
+	{
+		fd = open(av[1], O_RDONLY);
+		if (fd == -1)
 		{
-			printf("Entered: %s", line);
-			free(line);
+			if (errno == EACCES)
+				exit(126);
+			if (errno ==ENOENT)
+			{
+				_eputs(av[0]);
+				_eputs(": 0: Can't open ");
+				_eputs(av[1]);
+				_eputchar('\n');
+				_eputchar(BUF_FLUSH);
+				exit(127);
+			}
+			return (EXIT_FAILURE);
 		}
-		else
-		{
-			perror("Error reading line");
-		}
+		info->readfd = fd;
 	}
-	while (read != -1);
-
-	return (0);
+	populate_env_list(info);
+	read_history(info);
+	hsh(info, av);
+	return (EXIT_SUCCESS)
 }
